@@ -1,0 +1,15 @@
+<resources>
+    <!--Logistics-->
+    <string name="app_name">RoadTip</string>
+    <string name="title_activity_main_screen">RoadTip</string>
+
+    <!--SharedPreferences-->
+    <string name="can_access_location">HasMapPermission</string>
+
+    <!--Dialog, Toast, SnackBar-->
+    <string name="GPS_unavail">GPS service unavailable</string>
+    <string name="permission_title">Permission Denied</string>
+    <string name="permission_message">RoadTip needs location permission to provide better suggestions.</string>
+    <string name="positive_button">Got it!</string>
+
+</resources>
