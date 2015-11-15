@@ -97,6 +97,12 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
     private final static int FINE_LOCATION_PERMISSION_REQUEST_CODE = 0x001;
     private final static int VOICE_SEARCH_REQUEST_CODE = 1234;
 
+//    private final static int JSON_GET_LAT_REQUEST_CODE = 0x101;
+//    private final static int JSON_GET_LNG_REQUEST_CODE = 0x102;
+//    private final static int JSON_GET_POSTAL_REQUEST_CODE = 0x103;
+//    private final static int JSON_GET_NAME_REQUEST_CODE = 0x104;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -320,7 +326,6 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
     public void onReceiveResponse(String result) {
         JSONObject data = null;
 
-//        Log.i("HttpResponse", result);
         int maxLogStringSize = 1000;
         for(int i = 0; i <= result.length() / maxLogStringSize; i++) {
             int start = i * maxLogStringSize;
@@ -335,6 +340,7 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
             e.printStackTrace();
             Toast.makeText(MainScreen.this, getString(R.string.problem_stream), Toast.LENGTH_SHORT).show();
         }
+
 
 
         Toast.makeText(MainScreen.this, "Here", Toast.LENGTH_SHORT).show();
