@@ -13,6 +13,7 @@
     <!--SharedPreferences-->
     <string name="can_access_location">HasMapPermission</string>
     <string name="json_returned">JSONReturned</string>
+    <string name="background_running">BackgroundRunning</string>
 
     <!--Dialog, Toast, SnackBar-->
     <string name="GPS_unavail">GPS service unavailable</string>

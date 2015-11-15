@@ -1,7 +1,10 @@
 package com.peter.roadtip;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -60,6 +63,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.peter.roadtip.utils.TripAdvisorAgent.*;
 
@@ -458,28 +462,35 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i("LifeCycle", "onStop");
 
-        //TODO:
-        String dataUrl = "";
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
 
-        Intent locationService = new Intent(this, LocationService.class);
-        locationService.setData(Uri.parse(dataUrl));
+        List<ActivityManager.RunningTaskInfo> taskList = activityManager.getRunningTasks(10);
 
-        startService(locationService);
+        Log.i("LifeCycle", "onStop " + taskList.get(0).numActivities);
+
+        if (giveSuggestions && taskList.get(0).numActivities == 1) {
+            //TODO:
+            String dataUrl = "";
+
+            Intent locationService = new Intent(this, LocationService.class);
+            locationService.setData(Uri.parse(dataUrl));
+
+            startService(locationService);
+        }
     }
 
     @Override
     public void onReceiveResponse(String result) {
         JSONObject data = null;
 
-        int maxLogStringSize = 1000;
-        for(int i = 0; i <= result.length() / maxLogStringSize; i++) {
-            int start = i * maxLogStringSize;
-            int end = (i+1) * maxLogStringSize;
-            end = end > result.length() ? result.length() : end;
-            Log.i("HttpResponse", result.substring(start, end));
-        }
+//        int maxLogStringSize = 1000;
+//        for(int i = 0; i <= result.length() / maxLogStringSize; i++) {
+//            int start = i * maxLogStringSize;
+//            int end = (i+1) * maxLogStringSize;
+//            end = end > result.length() ? result.length() : end;
+//            Log.i("HttpResponse", result.substring(start, end));
+//        }
 
         try {
             data = new JSONObject(result);
@@ -493,6 +504,15 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
         Toast.makeText(MainScreen.this, "Here", Toast.LENGTH_SHORT).show();
     }
 
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 
@@ -514,6 +534,13 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 
     @Override
     protected void onResume() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+
+        if (isMyServiceRunning(LocationService.class)) {
+            stopService(new Intent(MainScreen.this, LocationService.class));
+        }
+
         super.onResume();
         Log.i("LifeCycle", "onResume");
     }
