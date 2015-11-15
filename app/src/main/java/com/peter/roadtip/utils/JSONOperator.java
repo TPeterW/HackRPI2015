@@ -220,7 +220,6 @@ public class JSONOperator {
         return locStrArr;
     }
 
-
     public String[] getRatingImgUrl(JSONObject data) throws JSONException {
 
         JSONArray JSONArr = data.getJSONArray("data");
@@ -287,10 +286,22 @@ public class JSONOperator {
                 seeAllPhotosArr[i] = "";
             }
         }
-        for (int i=0; i<seeAllPhotosArr.length;i++){
-            Log.v("ratingArr", seeAllPhotosArr[i]);
-        }
+//        for (int i=0; i<seeAllPhotosArr.length;i++){
+//            Log.v("ratingArr", seeAllPhotosArr[i]);
+//        }
         return seeAllPhotosArr;
+    }
+
+    public int getIndexByLat (JSONObject data, double lat) throws JSONException {
+        double[] latData = getLat(data);
+        for (int i=0; i<latData.length;i++) {
+            if (latData[i]==lat) {
+                Log.v("index", String.valueOf(i));
+                return i;
+            }
+        }
+        Log.v("index", "null");
+        return (int) RESULT_NULL;
     }
 
 }
