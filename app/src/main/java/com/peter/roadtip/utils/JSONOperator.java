@@ -316,6 +316,7 @@ public class JSONOperator {
         return (int) RESULT_NULL;
     }
 
+    //returns an array containing the indices found. Default values are set to -1.
     public int[] getIndexArrByRating (JSONObject data, double rating) throws JSONException {
         double[] ratingData = getRating(data);
         int[] indexArr = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
@@ -326,11 +327,9 @@ public class JSONOperator {
                 index++;
             }
         }
-
 //        for (int i=0; i<indexArr.length;i++){
 //            Log.v("ratingIndex", String.valueOf(indexArr[i]));
 //        }
-
         return indexArr;
     }
 
