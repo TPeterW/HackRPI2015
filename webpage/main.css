@@ -1,0 +1,65 @@
+.main {
+    height: 100%;
+    width: 100%;
+    background-image: url(road.jpg);
+    background-position: center;
+}
+
+#jumbo {
+    background-color: rgba(75,120,228,.5);
+    width:100%;
+    margin-top: 15px;
+    margin-right: 0px;
+    margin-left: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    
+    text-align: center;
+}
+
+#map {
+    height: 600px;
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: auto;
+    border-radius: 6px;
+    
+}
+
+#html {
+    height: 100%;
+    background-color: #4B78E4;
+}
+
+.footer{
+    
+    width: 100%;
+    text-align: center;
+    padding-bottom: 4px;
+    background-color: rgba(75,120,228,.5);
+}
+
+.fancy {
+    font-family: Pacifico;
+}
+
+.normal {
+   font-weight: bold;
+}
+
+.buffer {
+     background-color: rgba(75,120,228,.5);
+    margin-right: auto;
+    margin-left: auto;
+    height: 650px;
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+}
+
+.seperator {
+    height= 60px;
+    background-color: yellow;
+}
