@@ -17,6 +17,7 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -34,11 +35,17 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.peter.roadtip.utils.JSONOperator;
 import com.peter.roadtip.utils.TripAdvisorAgent;
 import com.quinny898.library.persistentsearch.SearchBox;
 import com.quinny898.library.persistentsearch.SearchResult;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+
+import static com.peter.roadtip.utils.TripAdvisorAgent.*;
 
 ////////////////////////////////////////////////////////////////////
 //                            _ooOoo_                             //
@@ -65,7 +72,7 @@ import java.util.ArrayList;
 
 
 public class MainScreen extends FragmentActivity implements OnMapReadyCallback, OnSharedPreferenceChangeListener,
-        OnMyLocationChangeListener, NavigationView.OnNavigationItemSelectedListener {
+        OnMyLocationChangeListener, OnNavigationItemSelectedListener, ResponseListener {
 
     private GoogleMap googleMap;
 
@@ -82,6 +89,7 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 
     // TripAdvisor
     private TripAdvisorAgent tripAdvisorAgent;
+    private JSONOperator jsonOperator;
 
     private boolean hasLocationPermission;
 
@@ -95,8 +103,8 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        //StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        //StrictMode.setThreadPolicy(policy);
 
         initData();
         
@@ -108,9 +116,12 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
     }
 
     private void initData() {
-        tripAdvisorAgent = TripAdvisorAgent.getInstance(this);
+        tripAdvisorAgent = getInstance(this);
         String request = tripAdvisorAgent.createRequest(42.33141, -71.099396, 0, null);
         Log.i("HttpRequest", request);
+        tripAdvisorAgent.getResponse(request);
+
+        jsonOperator = JSONOperator.getInstance(this);
     }
 
     private void initDrawer() {
@@ -264,6 +275,10 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
         if (key.equals(getString(R.string.can_access_location))) {
             hasLocationPermission = sharedPreferences.getBoolean(getString(R.string.can_access_location), true);
         }
+
+        if (key.equals(getString(R.string.json_returned))) {
+            Log.i("SharedPref", "JSON changed");
+        }
     }
 
     @Override
@@ -299,5 +314,29 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
     @Override
     public void onMyLocationChange(Location location) {
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+    }
+
+    @Override
+    public void onReceiveResponse(String result) {
+        JSONObject data = null;
+
+//        Log.i("HttpResponse", result);
+        int maxLogStringSize = 1000;
+        for(int i = 0; i <= result.length() / maxLogStringSize; i++) {
+            int start = i * maxLogStringSize;
+            int end = (i+1) * maxLogStringSize;
+            end = end > result.length() ? result.length() : end;
+            Log.v("HttpResponse", result.substring(start, end));
+        }
+
+        try {
+            data = new JSONObject(result);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(MainScreen.this, getString(R.string.problem_stream), Toast.LENGTH_SHORT).show();
+        }
+
+
+        Toast.makeText(MainScreen.this, "Here", Toast.LENGTH_SHORT).show();
     }
 }

@@ -1,23 +1,14 @@
 package com.peter.roadtip.utils;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
+import android.os.Looper;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.peter.roadtip.R;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -51,34 +42,6 @@ public class TripAdvisorAgent {
      * @return      null if encounters error
      */
     public void getResponse(final String request) {
-//        URL url;
-//        HttpURLConnection urlConnection = null;
-//        String response = "";
-//
-//        try {
-//            url = new URL(request);
-//            urlConnection = (HttpURLConnection) url.openConnection();
-//
-//            InputStream in = urlConnection.getInputStream();
-//            InputStreamReader isr = new InputStreamReader(in);
-//
-//            int data = isr.read();
-//            while (data != -1) {
-//                char current = (char) data;
-//                data = isr.read();
-//                response += current;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            Toast.makeText(context, context.getString(R.string.problem_url), Toast.LENGTH_SHORT).show();
-//        }
-//
-//
-//        return response;
-
-
-
-
         new GetResponseTaskAsync().execute(request);
     }
 
@@ -110,10 +73,15 @@ public class TripAdvisorAgent {
 
         @Override
         protected String doInBackground(String... urls) {
+            ResponseListener listener = (ResponseListener) context;
             String response = "";
             try {
                 URL url = new URL(urls[0]);
                 URLConnection urlConnection = url.openConnection();
+
+                urlConnection.setUseCaches(true);
+                urlConnection.setRequestProperty("Content-length", "0");
+                urlConnection.connect();
 
                 InputStream in = urlConnection.getInputStream();
                 InputStreamReader isr = new InputStreamReader(in);
@@ -125,6 +93,10 @@ public class TripAdvisorAgent {
                     response += current;
                 }
 
+//                Log.i("GetResponse", "Here");
+                Looper.prepare();
+                listener.onReceiveResponse(response);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -133,13 +105,13 @@ public class TripAdvisorAgent {
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
-            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-            editor.putString(context.getString(R.string.json_returned), result)
-                    .apply();
-            Log.i("HttpResponse", result);
-            super.onPostExecute(result);
+        protected void onPostExecute(String response) {
+//            Log.i("HttpResponse", "Post Execute" + response);
+            super.onPostExecute(response);
         }
+    }
+
+    public interface ResponseListener {
+        void onReceiveResponse(String result);
     }
 }
