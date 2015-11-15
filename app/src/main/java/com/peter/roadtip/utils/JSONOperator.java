@@ -15,6 +15,8 @@ public class JSONOperator {
 
     private static JSONOperator instance;
     private static final double RESULT_NULL = -1;
+    //for double and int, null is represented as -1
+    //for String, null is represented as ""
     private Context context;
 
     public static JSONOperator getInstance(Context context) {
@@ -67,12 +69,67 @@ public class JSONOperator {
             } catch (Exception e) {
                 ratingArr[i] = RESULT_NULL;
             }
-
         }
 //        for (int i=0; i<ratingArr.length;i++){
 //            Log.v("ratingArr", String.valueOf(ratingArr[i]));
 //        }
         return ratingArr;
     }
+
+    public int[] getNumReview(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        int[] numReviewArr = new int[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                numReviewArr[i] = JSONArr.getJSONObject(i).getInt("num_reviews");
+            } catch (Exception e) {
+                numReviewArr[i] = (int) RESULT_NULL;
+            }
+        }
+//        for (int i=0; i<numReviewArr.length;i++){
+//            Log.v("ratingArr", String.valueOf(numReviewArr[i]));
+//        }
+        return numReviewArr;
+    }
+
+    public String[] getName(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] nameArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                nameArr[i] = JSONArr.getJSONObject(i).getString("name");
+            } catch (Exception e) {
+                nameArr[i] = "";
+            }
+        }
+        for (int i=0; i<nameArr.length;i++){
+            Log.v("ratingArr", nameArr[i]);
+        }
+        return nameArr;
+    }
+
+    public String[] getPriceLvl(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] priceLvlArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                priceLvlArr[i] = JSONArr.getJSONObject(i).getString("price_level");
+            } catch (Exception e) {
+                priceLvlArr[i] = "";
+            }
+        }
+        for (int i=0; i<priceLvlArr.length;i++){
+            Log.v("ratingArr", priceLvlArr[i]);
+        }
+        return priceLvlArr;
+    }
+
+
 
 }
