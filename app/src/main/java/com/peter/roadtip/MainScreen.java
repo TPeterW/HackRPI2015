@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,12 +29,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -44,13 +42,10 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.peter.roadtip.utils.JSONOperator;
@@ -102,6 +97,11 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 
     // Search Box
     private SearchBox searchBox;
+    private String[] listName;
+    private double[] listDistance;
+    private int count;
+    private double[] listLat;
+    private double[] listLng;
 
     // Drawer
     private DrawerLayout drawer;
@@ -113,6 +113,8 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 
     private boolean hasLocationPermission;
     private boolean googleServiceAvailable;
+
+    private ProgressDialog progressDialog = null;
 
     // The Preferences
     private boolean giveSuggestions;
@@ -147,6 +149,7 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
     }
 
     private void initData() {
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
@@ -185,11 +188,11 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
                 break;
         }
 
-        tripAdvisorAgent = getInstance(this);
-        String request = tripAdvisorAgent.createRequest(42.33141, -71.099396, 0, null);
-        Log.i("HttpRequest", request);
-        tripAdvisorAgent.getResponse(request);
-
+        if (!googleServiceAvailable) {
+            AlertDialog dialog = makeAlertDialog(null, getString(R.string.GPS_unavail), null, null, null, null);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+        }
         jsonOperator = JSONOperator.getInstance(this);
     }
 
@@ -219,13 +222,14 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
             }
         });
 
-        for (int i = 0; i < 4; i++) {
-            SearchResult option = new SearchResult("Result " + Integer.toString(i),
-                    ContextCompat.getDrawable(this, R.mipmap.ic_launcher));
-            searchBox.addSearchable(option);
-        }
-        // the last item is always the place picker
+//        for (int i = 0; i < 4; i++) {
+//            SearchResult option = new SearchResult("Result " + Integer.toString(i),
+//                    ContextCompat.getDrawable(this, R.mipmap.ic_launcher));
+//            searchBox.addSearchable(option);
+//        }
+//       the last item is always the place picker
         searchBox.addSearchable(new SearchResult(getString(R.string.use_place_picker), ContextCompat.getDrawable(this, R.drawable.ic_google_2015)));
+
 
         searchBox.setSearchListener(new SearchBox.SearchListener() {
 
@@ -250,8 +254,13 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 
             @Override
             public void onSearch(String searchTerm) {
-                Toast.makeText(MainScreen.this, searchTerm + " Searched", Toast.LENGTH_LONG).show();
-                Log.i("Search", searchTerm + " Searched");
+                Log.i("SearchBox", searchTerm + "Searched");
+
+                for (int i = 0; i < listName.length; i++) {
+                    if (listName[i].equals(searchTerm)) {
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(listLat[i], listLng[i])), 1000, null);
+                    }
+                }
             }
 
             @Override
@@ -278,6 +287,8 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     }
                 }
+                else
+                    onSearch(result.title);
             }
 
             @Override
@@ -314,7 +325,11 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
             @Override
             public void onMapClick(LatLng latLng) {
                 googleMap.clear();
-                googleMap.addMarker(new MarkerOptions().draggable(true).flat(false).position(latLng));
+                googleMap.addMarker(new MarkerOptions()
+                        .draggable(true)
+                        .flat(false)
+                        .position(latLng)
+                        .title(getString(R.string.dst_marker_title)));
             }
         });
 
@@ -348,30 +363,36 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 
         googleMap.setPadding(0, getResources().getDimensionPixelSize(R.dimen.compass_padding), 0, 0);
 
-        if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+        if (getIntent().getExtras() != null && getIntent().getExtras().getBoolean("hasIntent", false)) {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
+                    (getIntent().getExtras().getDouble("latitude", 0),
+                    getIntent().getExtras().getDouble("longitude", 0)),
+                    10), 1000, null);
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(
+                    getIntent().getExtras().getDouble("latitude", 0),
+                    getIntent().getExtras().getDouble("longitude", 0))))
+                    .setTitle(getIntent().getExtras().getString("name", getString(R.string.dst_marker_title)));
+        } else if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
             Log.i("GoogleMap", "LastKnown is not null");
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
                     (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude(),
                             locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude()), 10), 1000, null);
         }
-    }
 
-
-    private void showAlertDialog(String dialogTitle, String dialogMsg,
-                                 @Nullable String positiveBtnMsg, @Nullable String negativeBtnMsg,
-                                 @Nullable DialogInterface.OnClickListener positiveListener,
-                                 @Nullable DialogInterface.OnClickListener negativeListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        AlertDialog dialog = builder.setTitle(dialogTitle)
-                .setMessage(dialogMsg)
-                .setPositiveButton(getString(R.string.positive_button), positiveListener)
-                .create();
-
-        dialog.show();
+        //TODO: remove later, pure test purposes
+        if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+            tripAdvisorAgent = getInstance(this);
+            String request = tripAdvisorAgent.createRequest(
+                    locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude(),
+                    locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude(), 0, null);
+            Log.i("HttpRequest", request);
+            tripAdvisorAgent.getResponse(request);
+        }
     }
 
     @Override
+    @SuppressWarnings("all")
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // TODO:
@@ -386,6 +407,18 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
                 break;
             case R.id.nav_map_satellite:
                 googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                break;
+
+            case R.id.nav_nearby:
+                googleMap.clear();
+                if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+                    String request = tripAdvisorAgent.createRequest(
+                            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLatitude(),
+                            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getLongitude(),
+                            0, null);
+                    tripAdvisorAgent.getResponse(request);
+                    showProgressDialog(getString(R.string.dialog_loading), getString(R.string.loading_msg));
+                }
                 break;
 
             case R.id.nav_settings:
@@ -432,7 +465,11 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
                     Place place = PlacePicker.getPlace(data, this);
                     googleMap.animateCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
                     googleMap.clear();          // clears all markers
-                    googleMap.addMarker(new MarkerOptions().draggable(true).flat(false).position(place.getLatLng()));
+                    googleMap.addMarker(new MarkerOptions()
+                            .draggable(true)
+                            .flat(false)
+                            .position(place.getLatLng())
+                            .title(place.getAddress().toString()));
                 }
         }
 
@@ -449,7 +486,7 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
                     editor.putBoolean(getString(R.string.can_access_location), true)
                             .apply();
                 } else {
-                    showAlertDialog(getString(R.string.permission_title), getString(R.string.permission_message),
+                    makeAlertDialog(getString(R.string.permission_title), getString(R.string.permission_message),
                             getString(R.string.positive_button), null, null, null);
                 }
                 break;
@@ -465,7 +502,7 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 
         ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
 
-        List<ActivityManager.RunningTaskInfo> taskList = activityManager.getRunningTasks(10);
+        List<ActivityManager.RunningTaskInfo> taskList = activityManager.getRunningTasks(Integer.MAX_VALUE);
 
         Log.i("LifeCycle", "onStop " + taskList.get(0).numActivities);
 
@@ -482,6 +519,8 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 
     @Override
     public void onReceiveResponse(String result) {
+        progressDialog.dismiss();
+
         JSONObject data = null;
 
 //        int maxLogStringSize = 1000;
@@ -492,16 +531,56 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
 //            Log.i("HttpResponse", result.substring(start, end));
 //        }
 
+        this.listName = new String[0];
+        this.listLat = new double[0];
+        this.listLng = new double[0];
+        this.listDistance = new double[0];
+        this.count = 0;
+
         try {
             data = new JSONObject(result);
+            listName       = jsonOperator.getName(data);
+            listLat        = jsonOperator.getLat(data);
+            listLng        = jsonOperator.getLng(data);
+            listDistance   = jsonOperator.getDistance(data);
+            count          = jsonOperator.getName(data).length;
+
         } catch (JSONException e) {
             e.printStackTrace();
             Toast.makeText(MainScreen.this, getString(R.string.problem_stream), Toast.LENGTH_SHORT).show();
         }
+    }
 
+    @Override
+    public void drawMarkers(String[] listName, double[] listLat, double[] listLng, double[] listDistance) {
+        Log.i("MainScreen", "drawMarker Called");
 
+        this.listName = listName;
+        this.listLat = listLat;
+        this.listLng = listLng;
+        this.listDistance = listDistance;
 
-        Toast.makeText(MainScreen.this, "Here", Toast.LENGTH_SHORT).show();
+        googleMap.clear();
+        for (int i = 0; i < listLat.length; i++) {
+//            Log.i("Position", listLat[i] + " " + listLng[i]);
+            googleMap.addMarker(new MarkerOptions()
+                    .draggable(false)
+                    .position(new LatLng(listLat[i], listLng[i]))
+                    .title(listName[i]))
+                    .setVisible(true);
+        }
+
+        searchBox.clearSearchable();
+        for (int i = 0; i < 4; i++) {
+            SearchResult option = new SearchResult(listName[i],         // TODO: this is 作弊
+                    ContextCompat.getDrawable(this, R.drawable.ic_restaurant));
+            searchBox.addSearchable(option);
+        }
+//       the last item is always the place picker
+        searchBox.addSearchable(new SearchResult(getString(R.string.use_place_picker), ContextCompat.getDrawable(this, R.drawable.ic_google_2015)));
+
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(listLat[getMinIndex(listDistance)], listLng[getMinIndex(listDistance)]), 20), 1000, null);
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -514,8 +593,55 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
         return false;
     }
 
+    private int getMinIndex(double[] input) {
+        double min = Double.MAX_VALUE;
+        int minIndex = 0;
+        for (int i = 0; i < input.length; i++) {
+            if (input[i] < min) {
+                min = input[i];
+                minIndex = i;
+            }
+        }
+        return minIndex;
+    }
 
+    private AlertDialog makeAlertDialog(String dialogTitle, String dialogMsg,
+                                        @Nullable String positiveBtnMsg, @Nullable String negativeBtnMsg,
+                                        @Nullable DialogInterface.OnClickListener positiveListener,
+                                        @Nullable DialogInterface.OnClickListener negativeListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
+        AlertDialog dialog = builder.setTitle(dialogTitle)
+                .setMessage(dialogMsg)
+                .setPositiveButton(getString(R.string.positive_button), positiveListener)
+                .create();
+
+        return dialog;
+    }
+
+    private void showProgressDialog(String dialogTitle, String dialogMsg) {
+        progressDialog = new ProgressDialog(this);
+
+        progressDialog.setTitle(dialogTitle);
+        progressDialog.setMessage(dialogMsg);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+        progressDialog.setCanceledOnTouchOutside(false);
+
+        progressDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+            return;
+        }
+
+        super.onBackPressed();
+    }
 
     // Methods below are for debugging
 

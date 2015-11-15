@@ -6,9 +6,12 @@
     <!--Search Box-->
     <string name="use_place_picker">Use Place Picker</string>
 
+    <!--Push Notifs-->
+    <string name="notif_msg">We found a restaurant you might be interested in</string>
 
     <!--Map-->
     <string name="popup_navigate">Find Direction</string>
+    <string name="dst_marker_title">Destination</string>
 
     <!--SharedPreferences-->
     <string name="can_access_location">HasMapPermission</string>
@@ -22,6 +25,8 @@
     <string name="positive_button">Got it!</string>
     <string name="problem_url">Problem generating request</string>
     <string name="problem_stream">Error reading response</string>
+    <string name="dialog_loading">Loading…</string>
+    <string name="loading_msg">Retrieving suggestions for you…</string>
 
     <!--Preferences/Settings-->
     <string name="cat_general">General</string>
@@ -31,6 +36,7 @@
     <string name="pref_detours">Detours</string>
     <string name="pref_trip_advisor">TripAdvisor</string>
     <string name="pref_give_suggestions">Give Suggestions</string>
+    <string name="pref_send_push">Receive notification</string>
 
     <!--Navigation Drawer-->
     <string name="nav_gps_avail">GPS Available</string>
@@ -38,10 +44,12 @@
     <string name="nav_settings">Settings</string>
     <string name="nav_title_map_types">Map Type</string>
     <string name="nav_title_commu">Communication</string>
+    <string name="nav_title_suggestion">Suggestion</string>
     <string name="map_normal">Normal</string>
     <string name="map_terrain">Terrain</string>
     <string name="map_satellite">Satellite</string>
     <string name="map_hybrid">Hybrid</string>
+    <string name="nearby_suggestion">Nearby</string>
 
     <!--Color Themes-->
     <string name="theme_green">Green</string>

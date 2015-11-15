@@ -21,11 +21,16 @@ import android.util.Log;
 import com.peter.roadtip.MainScreen;
 import com.peter.roadtip.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static com.peter.roadtip.utils.TripAdvisorAgent.*;
+
 /**
  * Created by Peter on 11/15/15.
  *
  */
-public class LocationService extends Service implements OnSharedPreferenceChangeListener {
+public class LocationService extends Service implements ResponseListener {
 
     private static int notificationId;
 
@@ -34,7 +39,7 @@ public class LocationService extends Service implements OnSharedPreferenceChange
     private boolean pushNotifs;
 
     private LocationManager locationManager = null;
-    private static final int LOCATION_INTERVAL = 3000;
+    private static final int LOCATION_INTERVAL = 1000;          // that's one sec mate
     private static final float LOCATION_DISTANCE = 0f;
 
     BackgroundLocationListener[] listLocationListener = new BackgroundLocationListener[]{
@@ -63,8 +68,6 @@ public class LocationService extends Service implements OnSharedPreferenceChange
 
         pushNotifs = true;
 
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-
         jsonOperator = JSONOperator.getInstance(this);
 
 
@@ -88,17 +91,20 @@ public class LocationService extends Service implements OnSharedPreferenceChange
         }
     }
 
-    private void pushNotification(String title, String msg) {
+    private void pushNotification(String title, String msg, double latitude, double longitude) {
         // TODO: depending on type of notification, we give different icons
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_normal_notification)
                 .setContentTitle(title)
                 .setContentText(msg)
-                .setAutoCancel(true);
-//                .setVibrate(new long[]{1000, 500, 1000});
+                .setAutoCancel(true)
+                .setVibrate(new long[]{1000});
 
         Intent toDisplayScreen = new Intent(LocationService.this, MainScreen.class);  //TODO: change to specific page later
-
+        toDisplayScreen.putExtra("latitude", latitude);
+        toDisplayScreen.putExtra("longitude", longitude);
+        toDisplayScreen.putExtra("hasIntent", true);
+        toDisplayScreen.putExtra("name", title);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MainScreen.class);
@@ -131,14 +137,45 @@ public class LocationService extends Service implements OnSharedPreferenceChange
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.background_running))) {
-            Log.i("SharedPref", sharedPreferences.getBoolean(getString(R.string.background_running), false) + "**");
-            if (!sharedPreferences.getBoolean(getString(R.string.background_running), false)) {
-                pushNotifs = false;
-                stopSelf();
+    public void onReceiveResponse(String result) {
+        try {
+            JSONObject data = new JSONObject(result);
+            JSONOperator jsonOperator = JSONOperator.getInstance(LocationService.this);
+
+            double[] listDistance = jsonOperator.getDistance(data);
+            double[] listLat = jsonOperator.getLat(data);
+            double[] listLng = jsonOperator.getLng(data);
+            int minIndex = getMinIndex(listDistance);
+
+            if (pushNotifs)
+                pushNotification(jsonOperator.getName(data)[minIndex],
+                        getString(R.string.notif_msg),
+                        listLat[minIndex], listLng[minIndex]);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private double getDistanceInKilo(Location A, Location B) {
+        return A.distanceTo(B);
+    }
+
+    private int getMinIndex(double[] input) {
+        double min = Double.MAX_VALUE;
+        int minIndex = 0;
+        for (int i = 0; i < input.length; i++) {
+            if (input[i] < min) {
+                min = input[i];
+                minIndex = i;
             }
         }
+        return minIndex;
+    }
+
+    @Override
+    public void drawMarkers(String[] listName, double[] listLat, double[] listLng, double[] listDistance) {
+
     }
 
     public class BackgroundLocationListener implements LocationListener {
@@ -153,8 +190,10 @@ public class LocationService extends Service implements OnSharedPreferenceChange
         public void onLocationChanged(Location location) {
             Log.d("LocationListener", "LocationChanged " + location);
             lastLocation = location;
-            if (pushNotifs)
-                pushNotification("Location Changed", location + "");
+
+            TripAdvisorAgent tripAdvisorAgent = getInstance(LocationService.this);
+            String request = tripAdvisorAgent.createRequest(lastLocation.getLatitude(), lastLocation.getLongitude(), 0, null);
+            tripAdvisorAgent.getResponse(request);
         }
 
         @Override

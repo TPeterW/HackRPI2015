@@ -24,6 +24,12 @@
             android:title="@string/map_satellite" />
     </group>
 
+    <item android:title="@string/nav_title_suggestion">
+        <menu>
+            <item android:id="@+id/nav_nearby" android:icon="@drawable/ic_nearby"
+                android:title="@string/nearby_suggestion" />
+        </menu>
+    </item>
 
     <item android:title="@string/nav_title_commu">
         <menu>
