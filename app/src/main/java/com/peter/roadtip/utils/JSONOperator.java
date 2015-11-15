@@ -76,6 +76,24 @@ public class JSONOperator {
         return ratingArr;
     }
 
+    public double[] getDistance(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        double[] distanceArr = new double[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                distanceArr[i] = JSONArr.getJSONObject(i).getDouble("distance");
+            } catch (Exception e) {
+                distanceArr[i] = RESULT_NULL;
+            }
+        }
+//        for (int i=0; i<distanceArr.length;i++){
+//            Log.v("ratingArr", String.valueOf(distanceArr[i]));
+//        }
+        return distanceArr;
+    }
+
     public int[] getNumReview(JSONObject data) throws JSONException {
 
         JSONArray JSONArr = data.getJSONArray("data");
@@ -106,9 +124,9 @@ public class JSONOperator {
                 nameArr[i] = "";
             }
         }
-        for (int i=0; i<nameArr.length;i++){
-            Log.v("ratingArr", nameArr[i]);
-        }
+//        for (int i=0; i<nameArr.length;i++){
+//            Log.v("ratingArr", nameArr[i]);
+//        }
         return nameArr;
     }
 
@@ -124,12 +142,29 @@ public class JSONOperator {
                 priceLvlArr[i] = "";
             }
         }
-        for (int i=0; i<priceLvlArr.length;i++){
-            Log.v("ratingArr", priceLvlArr[i]);
-        }
+//        for (int i=0; i<priceLvlArr.length;i++){
+//            Log.v("ratingArr", priceLvlArr[i]);
+//        }
         return priceLvlArr;
     }
 
+    public String[] getBearing(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] bearingArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                bearingArr[i] = JSONArr.getJSONObject(i).getString("bearing");
+            } catch (Exception e) {
+                bearingArr[i] = "";
+            }
+        }
+//        for (int i=0; i<bearingArr.length;i++){
+//            Log.v("ratingArr", bearingArr[i]);
+//        }
+        return bearingArr;
+    }
 
 
 }
