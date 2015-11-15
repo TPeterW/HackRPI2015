@@ -2,4 +2,6 @@
 
     <string name="speak_now">Speak now</string>
 
+    <string name="edittext_hint">Nearby/Destination</string>
+
 </resources>

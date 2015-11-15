@@ -19,6 +19,16 @@
         android:key="suggestions"
         android:title="@string/cat_suggestions">
 
+        <CheckBoxPreference
+            android:key="@string/pref_give_suggestions"
+            android:title="@string/pref_give_suggestions"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_send_push"
+            android:title="@string/pref_send_push"
+            android:defaultValue="true" />
+
         <EditTextPreference
             android:key="stops"
             android:title="@string/pref_detours"

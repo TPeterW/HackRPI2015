@@ -20,7 +20,7 @@
             android:id="@+id/results"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_below="@+id/card_view">
         </ListView>
 
@@ -38,9 +38,9 @@
                 android:layout_alignBottom="@+id/material_menu_button"
                 android:layout_alignParentTop="true"
                 android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/mic"
-                android:layout_alignParentLeft="true"
-                android:layout_marginLeft="54dp"
+                android:layout_toStartOf="@+id/mic"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="54dp"
                 android:singleLine="true"
                 android:gravity="center_vertical"
                 tools:text="Logo"
@@ -53,14 +53,15 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/material_menu_button"
                 android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginLeft="54dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="54dp"
                 android:background="@null"
                 android:ems="10"
                 android:textColor="#212121"
                 android:singleLine="true"
                 android:imeOptions="actionSearch"
-                android:visibility="gone" >
+                android:visibility="gone"
+                android:hint="@string/edittext_hint">
 
                 <requestFocus />
             </com.quinny898.library.persistentsearch.BackEventEditText>
@@ -71,10 +72,10 @@
                 android:layout_height="25dp"
                 android:layout_alignBottom="@+id/material_menu_button"
                 android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/overflow"
+                android:layout_toStartOf="@+id/overflow"
                 android:layout_alignWithParentIfMissing="true"
                 android:onClick="mic"
-                android:layout_marginRight="13dp"
+                android:layout_marginEnd="13dp"
                 android:src="@drawable/ic_action_mic" />
 
             <ImageView
@@ -82,9 +83,9 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_alignBottom="@+id/material_menu_button"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginRight="13dp"
+                android:layout_marginEnd="13dp"
                 android:src="@drawable/ic_more_vert_black_24dp"
                 android:visibility="gone"/>
 
@@ -92,7 +93,7 @@
                 android:id="@+id/material_menu_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 app:mm_color="#616161"
                 app:mm_strokeWidth="2"
                 app:mm_transformDuration="500" />
@@ -103,17 +104,17 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_alignBottom="@+id/material_menu_button"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/mic"
-                android:layout_marginRight="13dp"/>
+                android:layout_toStartOf="@+id/mic"
+                android:layout_marginEnd="13dp"/>
 
             <ImageView
                 android:id="@+id/drawer_logo"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_alignParentLeft="true"
-                android:layout_marginLeft="16dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp" />
 
         </RelativeLayout>

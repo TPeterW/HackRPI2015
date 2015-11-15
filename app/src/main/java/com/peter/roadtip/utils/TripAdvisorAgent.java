@@ -4,8 +4,13 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.peter.roadtip.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -71,9 +76,10 @@ public class TripAdvisorAgent {
 
     class GetResponseTaskAsync extends AsyncTask<String, Void, String> {
 
+        ResponseListener listener = (ResponseListener) context;
+
         @Override
         protected String doInBackground(String... urls) {
-            ResponseListener listener = (ResponseListener) context;
             String response = "";
             try {
                 URL url = new URL(urls[0]);
@@ -106,12 +112,35 @@ public class TripAdvisorAgent {
 
         @Override
         protected void onPostExecute(String response) {
-//            Log.i("HttpResponse", "Post Execute" + response);
+            JSONObject data = null;
+
+            JSONOperator jsonOperator = JSONOperator.getInstance(context);
+            String[] listName       = new String[0];
+            double[] listLat        = new double[0];
+            double[] listLng        = new double[0];
+            double[] listDistance   = new double[0];
+            int count = 0;
+
+            try {
+                data = new JSONObject(response);
+                listName       = jsonOperator.getName(data);
+                listLat        = jsonOperator.getLat(data);
+                listLng        = jsonOperator.getLng(data);
+                listDistance   = jsonOperator.getDistance(data);
+                count          = jsonOperator.getName(data).length;
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(context, context.getString(R.string.problem_stream), Toast.LENGTH_SHORT).show();
+            }
+            Log.i("PostExecute", "drawMarkers Called");
+            listener.drawMarkers(listName, listLat, listLng, listDistance);
+
             super.onPostExecute(response);
         }
     }
 
     public interface ResponseListener {
         void onReceiveResponse(String result);
+        void drawMarkers(String[] listName, double[] listLat, double[] listLng, double[] listDistance);
     }
 }
