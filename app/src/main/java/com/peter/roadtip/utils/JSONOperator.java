@@ -166,5 +166,59 @@ public class JSONOperator {
         return bearingArr;
     }
 
+    public String[] getLocId(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] locIdArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                locIdArr[i] = JSONArr.getJSONObject(i).getString("location_id");
+            } catch (Exception e) {
+                locIdArr[i] = "";
+            }
+        }
+//        for (int i=0; i<locIdArr.length;i++){
+//            Log.v("ratingArr", locIdArr[i]);
+//        }
+        return locIdArr;
+    }
+
+    public String[] getWriteReview(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] writeReviewArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                writeReviewArr[i] = JSONArr.getJSONObject(i).getString("write_review");
+            } catch (Exception e) {
+                writeReviewArr[i] = "";
+            }
+        }
+//        for (int i=0; i<writeReviewArr.length;i++){
+//            Log.v("ratingArr", writeReviewArr[i]);
+//        }
+        return writeReviewArr;
+    }
+
+    public String[] getLocStr(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] locStrArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                locStrArr[i] = JSONArr.getJSONObject(i).getString("location_string");
+            } catch (Exception e) {
+                locStrArr[i] = "";
+            }
+        }
+        for (int i=0; i<locStrArr.length;i++){
+            Log.v("ratingArr", locStrArr[i]);
+        }
+        return locStrArr;
+    }
+
 
 }
