@@ -14,7 +14,7 @@ import org.json.JSONObject;
 public class JSONOperator {
 
     private static JSONOperator instance;
-
+    private static final double RESULT_NULL = -1;
     private Context context;
 
     public static JSONOperator getInstance(Context context) {
@@ -55,4 +55,24 @@ public class JSONOperator {
 //        }
         return lngArr;
     }
+
+    public double[] getRating(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        double[] ratingArr = new double[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                ratingArr[i] = JSONArr.getJSONObject(i).getDouble("rating");
+            } catch (Exception e) {
+                ratingArr[i] = RESULT_NULL;
+            }
+
+        }
+//        for (int i=0; i<ratingArr.length;i++){
+//            Log.v("ratingArr", String.valueOf(ratingArr[i]));
+//        }
+        return ratingArr;
+    }
+
 }
