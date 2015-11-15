@@ -50,6 +50,7 @@
     <string name="map_satellite">Satellite</string>
     <string name="map_hybrid">Hybrid</string>
     <string name="nearby_suggestion">Nearby</string>
+    <string name="go_webpage">Website</string>
 
     <!--Color Themes-->
     <string name="theme_green">Green</string>

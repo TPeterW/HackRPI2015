@@ -421,6 +421,13 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
                 }
                 break;
 
+            case R.id.nav_web:
+                String url = "http://hswaffield.github.io/RoadTip/";
+                Intent toWebPage = new Intent(Intent.ACTION_VIEW);
+                toWebPage.setData(Uri.parse(url));
+                startActivity(toWebPage);
+                break;
+
             case R.id.nav_settings:
                 Intent toSettingsScreen = new Intent(MainScreen.this, SettingsScreen.class);
                 startActivity(toSettingsScreen);

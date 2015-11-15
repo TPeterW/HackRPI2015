@@ -35,6 +35,8 @@
         <menu>
             <item android:id="@+id/nav_settings" android:icon="@drawable/ic_settings"
                 android:title="@string/nav_settings" />
+            <item android:id="@+id/nav_web" android:icon="@drawable/ic_webpage"
+                android:title="@string/go_webpage" />
         </menu>
     </item>
 
