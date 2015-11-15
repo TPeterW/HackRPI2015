@@ -296,12 +296,42 @@ public class JSONOperator {
         double[] latData = getLat(data);
         for (int i=0; i<latData.length;i++) {
             if (latData[i]==lat) {
+//                Log.v("index", String.valueOf(i));
+                return i;
+            }
+        }
+//        Log.v("index", "null");
+        return (int) RESULT_NULL;
+    }
+
+    public int getIndexByLng (JSONObject data, double lng) throws JSONException {
+        double[] lngData = getLng(data);
+        for (int i=0; i<lngData.length;i++) {
+            if (lngData[i]==lng) {
                 Log.v("index", String.valueOf(i));
                 return i;
             }
         }
         Log.v("index", "null");
         return (int) RESULT_NULL;
+    }
+
+    public int[] getIndexArrByRating (JSONObject data, double rating) throws JSONException {
+        double[] ratingData = getRating(data);
+        int[] indexArr = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+        int index = 0;
+        for(int i=0; i<ratingData.length;i++) {
+            if (ratingData[i]==rating) {
+                indexArr[index] = i;
+                index++;
+            }
+        }
+
+//        for (int i=0; i<indexArr.length;i++){
+//            Log.v("ratingIndex", String.valueOf(indexArr[i]));
+//        }
+
+        return indexArr;
     }
 
 }
