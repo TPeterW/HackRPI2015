@@ -3,6 +3,13 @@
     <string name="app_name">RoadTip</string>
     <string name="title_activity_main_screen">RoadTip</string>
 
+    <!--Search Box-->
+    <string name="use_place_picker">Use Place Picker</string>
+
+
+    <!--Map-->
+    <string name="popup_navigate">Find Direction</string>
+
     <!--SharedPreferences-->
     <string name="can_access_location">HasMapPermission</string>
     <string name="json_returned">JSONReturned</string>
@@ -22,6 +29,7 @@
     <string name="pref_theme">Colour Theme</string>
     <string name="pref_detours">Detours</string>
     <string name="pref_trip_advisor">TripAdvisor</string>
+    <string name="pref_give_suggestions">Give Suggestions</string>
 
     <!--Navigation Drawer-->
     <string name="nav_gps_avail">GPS Available</string>
@@ -43,5 +51,18 @@
 
     <!--API Keys-->
     <string name="trip_advisor_key">f0aa9402-a45c-4e90-86b2-acaab8076bc3</string>
+
+    <!--Service Availability Dialog-->
+    <string name="svcs_unavail">One or more Google Service Components unavailable, you might not be able to use the geolocation for the reminders</string>
+    <string name="svcs_cancel">Connection to Google Play Service is cancelled</string>
+    <string name="svcs_acct_invalid">Your Google Account is invalid</string>
+    <string name="svcs_missing">Google Play Service is missing on your device, this might result in the unavailability of geolocation function for reminders</string>
+    <string name="svcs_updating">Google Play Service on this device is currently updating, please try later</string>
+    <string name="svcs_disabled">Google Play Service on this device is disabled, please enable Google map function</string>
+    <string name="svcs_signin">Please sign in to Google Play Service before using geolocation function</string>
+    <string name="svcs_req_update">Google Play Service version is too old</string>
+    <string name="svcs_other">Ran into some problems when initialising Google Play Service</string>
+    <string name="svcs_repairable">Please fix your Google Service configuration</string>
+    <string name="svcs_broken">Cannot find Google Service</string>
 
 </resources>

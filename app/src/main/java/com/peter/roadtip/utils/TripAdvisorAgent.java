@@ -106,7 +106,6 @@ public class TripAdvisorAgent {
 
         @Override
         protected void onPostExecute(String response) {
-//            Log.i("HttpResponse", "Post Execute" + response);
             super.onPostExecute(response);
         }
     }
