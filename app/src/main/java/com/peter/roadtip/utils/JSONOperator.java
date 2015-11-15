@@ -1,7 +1,10 @@
 package com.peter.roadtip.utils;
 
 import android.content.Context;
+import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -25,8 +28,31 @@ public class JSONOperator {
         this.context = context;
     }
 
-    private double[] getLat(JSONObject data) {
-        //TODO:
-        return null;
+    public double[] getLat(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        double[] latArr = new double[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            latArr[i] = JSONArr.getJSONObject(i).getDouble("latitude");
+        }
+//        for (int i=0; i<latArr.length;i++){
+//            Log.v("latArr", String.valueOf(latArr[i]));
+//        }
+        return latArr;
+    }
+
+    public double[] getLng(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        double[] lngArr = new double[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            lngArr[i] = JSONArr.getJSONObject(i).getDouble("longitude");
+        }
+//        for (int i=0; i<lngArr.length;i++){
+//            Log.v("lngArr", String.valueOf(lngArr[i]));
+//        }
+        return lngArr;
     }
 }
