@@ -214,11 +214,83 @@ public class JSONOperator {
                 locStrArr[i] = "";
             }
         }
-        for (int i=0; i<locStrArr.length;i++){
-            Log.v("ratingArr", locStrArr[i]);
-        }
+//        for (int i=0; i<locStrArr.length;i++){
+//            Log.v("ratingArr", locStrArr[i]);
+//        }
         return locStrArr;
     }
 
+
+    public String[] getRatingImgUrl(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] ratingImgUrlArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                ratingImgUrlArr[i] = JSONArr.getJSONObject(i).getString("rating_image_url");
+            } catch (Exception e) {
+                ratingImgUrlArr[i] = "";
+            }
+        }
+//        for (int i=0; i<ratingImgUrlArr.length;i++){
+//            Log.v("ratingArr", ratingImgUrlArr[i]);
+//        }
+        return ratingImgUrlArr;
+    }
+
+    public String[] getWebUrl(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] webUrlArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                webUrlArr[i] = JSONArr.getJSONObject(i).getString("web_url");
+            } catch (Exception e) {
+                webUrlArr[i] = "";
+            }
+        }
+//        for (int i=0; i<webUrlArr.length;i++){
+//            Log.v("ratingArr", webUrlArr[i]);
+//        }
+        return webUrlArr;
+    }
+
+    public String[] getApiDetailUrl(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] apiDetailUrlArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                apiDetailUrlArr[i] = JSONArr.getJSONObject(i).getString("api_detail_url");
+            } catch (Exception e) {
+                apiDetailUrlArr[i] = "";
+            }
+        }
+//        for (int i=0; i<apiDetailUrlArr.length;i++){
+//            Log.v("ratingArr", apiDetailUrlArr[i]);
+//        }
+        return apiDetailUrlArr;
+    }
+
+    public String[] getSeeAllPhotos(JSONObject data) throws JSONException {
+
+        JSONArray JSONArr = data.getJSONArray("data");
+        String[] seeAllPhotosArr = new String[JSONArr.length()];
+
+        for (int i=0; i<JSONArr.length();i++) {
+            try {
+                seeAllPhotosArr[i] = JSONArr.getJSONObject(i).getString("see_all_photos");
+            } catch (Exception e) {
+                seeAllPhotosArr[i] = "";
+            }
+        }
+        for (int i=0; i<seeAllPhotosArr.length;i++){
+            Log.v("ratingArr", seeAllPhotosArr[i]);
+        }
+        return seeAllPhotosArr;
+    }
 
 }
