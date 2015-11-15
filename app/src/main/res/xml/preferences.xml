@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="general"
+        android:title="@string/cat_general">
+
+        <ListPreference
+            android:key="colorTheme"
+            android:title="@string/pref_theme"
+            android:dialogTitle="@string/pref_theme"
+            android:entries="@array/color_theme_entry"
+            android:entryValues="@array/color_theme_value"
+            android:defaultValue="0"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="suggestions"
+        android:title="@string/cat_suggestions">
+
+        <EditTextPreference
+            android:key="stops"
+            android:title="@string/pref_detours"
+            android:defaultValue="3"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="sponsor"
+        android:title="@string/cat_sponsor">
+
+        <Preference
+            android:key="trip_advisor"
+            android:title="@string/pref_trip_advisor">
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

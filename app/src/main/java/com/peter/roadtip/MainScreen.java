@@ -3,27 +3,42 @@ package com.peter.roadtip;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.peter.roadtip.utils.TripAdvisorAgent;
+import com.quinny898.library.persistentsearch.SearchBox;
+import com.quinny898.library.persistentsearch.SearchResult;
+
+import java.util.ArrayList;
 
 ////////////////////////////////////////////////////////////////////
 //                            _ooOoo_                             //
@@ -49,7 +64,8 @@ import com.google.android.gms.maps.model.LatLng;
 ////////////////////////////////////////////////////////////////////
 
 
-public class MainScreen extends FragmentActivity implements OnMapReadyCallback, OnSharedPreferenceChangeListener {
+public class MainScreen extends FragmentActivity implements OnMapReadyCallback, OnSharedPreferenceChangeListener,
+        OnMyLocationChangeListener, NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap googleMap;
 
@@ -57,10 +73,21 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
     private Location currentLocation;
     private LocationManager locationManager;
 
+    // Search Box
+    private SearchBox searchBox;
+
+    // Drawer
+    private DrawerLayout drawer;
+    private NavigationView navigationView;
+
+    // TripAdvisor
+    private TripAdvisorAgent tripAdvisorAgent;
+
     private boolean hasLocationPermission;
 
     // Request Codes
     private final static int FINE_LOCATION_PERMISSION_REQUEST_CODE = 0x001;
+    private final static int VOICE_SEARCH_REQUEST_CODE = 1234;
 
 
     @Override
@@ -68,7 +95,29 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
 
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        initData();
+        
+        initDrawer();
+
         setUpMap();
+
+        setUpSearchBox();
+    }
+
+    private void initData() {
+        tripAdvisorAgent = TripAdvisorAgent.getInstance(this);
+        String request = tripAdvisorAgent.createRequest(42.33141, -71.099396, 0, null);
+        Log.i("HttpRequest", request);
+    }
+
+    private void initDrawer() {
+        drawer = (DrawerLayout) findViewById(R.id.main_screen_drawer_layout);
+
+        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     private void setUpMap() {
@@ -78,16 +127,54 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
         mapFragment.getMapAsync(this);
     }
 
+    private void setUpSearchBox() {
+        searchBox = (SearchBox) findViewById(R.id.search_box);
+        searchBox.enableVoiceRecognition(this);
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+        searchBox.setMenuListener(new SearchBox.MenuListener() {
+            @Override
+            public void onMenuClick() {
+                if (!drawer.isDrawerOpen(GravityCompat.START))
+                    drawer.openDrawer(GravityCompat.START);
+            }
+        });
+
+        searchBox.setSearchListener(new SearchBox.SearchListener() {
+
+            @Override
+            public void onSearchOpened() {
+                //Use this to tint the screen
+            }
+
+            @Override
+            public void onSearchClosed() {
+                //Use this to un-tint the screen
+            }
+
+            @Override
+            public void onSearchTermChanged(String term) {
+                //React to the search term changing
+                //Called after it has updated results
+            }
+
+            @Override
+            public void onSearch(String searchTerm) {
+                Toast.makeText(MainScreen.this, searchTerm + " Searched", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onResultClick(SearchResult result) {
+                //React to a result being clicked
+            }
+
+            @Override
+            public void onSearchCleared() {
+                //Called when the clear button is clicked
+            }
+
+        });
+    }
+
     @Override
     public void onMapReady(GoogleMap inputMap) {
         googleMap = inputMap;
@@ -104,13 +191,29 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
                             FINE_LOCATION_PERMISSION_REQUEST_CODE);
                 }
             }
-        }
+        } else
+            hasLocationPermission = true;
 
         if (hasLocationPermission && locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
             currentLocation = googleMap.getMyLocation();
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng
+            googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng
                     (currentLocation.getLatitude(), currentLocation.getLongitude())));
         }
+
+        googleMap.setBuildingsEnabled(true);
+        googleMap.setIndoorEnabled(true);
+        googleMap.setMyLocationEnabled(true);
+        UiSettings uiSettings = googleMap.getUiSettings();
+        uiSettings.setAllGesturesEnabled(true);
+        uiSettings.setMyLocationButtonEnabled(true);
+        uiSettings.setIndoorLevelPickerEnabled(true);
+        uiSettings.setCompassEnabled(true);
+        uiSettings.setMapToolbarEnabled(true);
+        uiSettings.setZoomControlsEnabled(true);
+
+        googleMap.setPadding(0, getResources().getDimensionPixelSize(R.dimen.compass_padding), 0, 0);
+
+        googleMap.setOnMyLocationChangeListener(this);
     }
 
 
@@ -129,10 +232,49 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
     }
 
     @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // TODO:
+            case R.id.nav_map_normal:
+                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                break;
+            case R.id.nav_map_terrain:
+                googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                break;
+            case R.id.nav_map_hybrid:
+                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                break;
+            case R.id.nav_map_satellite:
+                googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                break;
+
+            case R.id.nav_settings:
+                Intent toSettingsScreen = new Intent(MainScreen.this, SettingsScreen.class);
+                startActivity(toSettingsScreen);
+                break;
+        }
+
+        if (drawer.isDrawerOpen(GravityCompat.START))
+            drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.can_access_location))) {
             hasLocationPermission = sharedPreferences.getBoolean(getString(R.string.can_access_location), true);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VOICE_SEARCH_REQUEST_CODE && resultCode == RESULT_OK) {
+            ArrayList<String> matches = data
+                    .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            searchBox.populateEditText(matches.get(0));
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -152,5 +294,10 @@ public class MainScreen extends FragmentActivity implements OnMapReadyCallback, 
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onMyLocationChange(Location location) {
+        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
     }
 }

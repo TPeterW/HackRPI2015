@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="color_theme_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    
+    <string-array name="color_theme_entry">
+        <item>@string/theme_green</item>
+        <item>@string/theme_blue</item>
+        <item>@string/theme_red</item>
+        <item>@string/theme_yellow</item>
+        <item>@string/theme_black</item>
+    </string-array>
+
+</resources>

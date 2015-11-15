@@ -5,11 +5,43 @@
 
     <!--SharedPreferences-->
     <string name="can_access_location">HasMapPermission</string>
+    <string name="json_returned">JSONReturned</string>
 
     <!--Dialog, Toast, SnackBar-->
     <string name="GPS_unavail">GPS service unavailable</string>
     <string name="permission_title">Permission Denied</string>
     <string name="permission_message">RoadTip needs location permission to provide better suggestions.</string>
     <string name="positive_button">Got it!</string>
+    <string name="problem_url">Problem generating request</string>
+    <string name="problem_stream">Error reading response</string>
+
+    <!--Preferences/Settings-->
+    <string name="cat_general">General</string>
+    <string name="cat_suggestions">Suggestions</string>
+    <string name="cat_sponsor">Sponsor</string>
+    <string name="pref_theme">Colour Theme</string>
+    <string name="pref_detours">Detours</string>
+    <string name="pref_trip_advisor">TripAdvisor</string>
+
+    <!--Navigation Drawer-->
+    <string name="nav_gps_avail">GPS Available</string>
+    <string name="nav_gps_unavail">GPS Unavailable</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_title_map_types">Map Type</string>
+    <string name="nav_title_commu">Communication</string>
+    <string name="map_normal">Normal</string>
+    <string name="map_terrain">Terrain</string>
+    <string name="map_satellite">Satellite</string>
+    <string name="map_hybrid">Hybrid</string>
+
+    <!--Color Themes-->
+    <string name="theme_green">Green</string>
+    <string name="theme_blue">Blue</string>
+    <string name="theme_yellow">Yellow</string>
+    <string name="theme_red">Red</string>
+    <string name="theme_black">Dark</string>
+
+    <!--API Keys-->
+    <string name="trip_advisor_key">f0aa9402-a45c-4e90-86b2-acaab8076bc3</string>
 
 </resources>
